@@ -1,0 +1,559 @@
+main>.container,
+main>.container-fluid {
+    padding: 70px 15px 20px;
+}
+
+.footer {
+    background-color: #f5f5f5;
+    font-size: .9em;
+    height: 60px;
+}
+
+.footer>.container,
+.footer>.container-fluid {
+    padding-right: 15px;
+    padding-left: 15px;
+}
+
+.not-set {
+    color: #c55;
+    font-style: italic;
+}
+
+/* add sorting icons to gridview sort links */
+a.asc:after,
+a.desc:after {
+    content: '';
+    left: 3px;
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border: solid 5px transparent;
+    margin: 4px 4px 2px 4px;
+    background: transparent;
+}
+
+a.asc:after {
+    border-bottom: solid 7px #212529;
+    border-top-width: 0;
+}
+
+a.desc:after {
+    border-top: solid 7px #212529;
+    border-bottom-width: 0;
+}
+
+.grid-view th,
+.grid-view td:last-child {
+    white-space: nowrap;
+}
+
+.grid-view .filters input,
+.grid-view .filters select {
+    min-width: 50px;
+}
+
+.hint-block {
+    display: block;
+    margin-top: 5px;
+    color: #999;
+}
+
+.error-summary {
+    color: #a94442;
+    background: #fdf7f7;
+    border-left: 3px solid #eed3d7;
+    padding: 10px 20px;
+    margin: 0 0 15px 0;
+}
+
+/* align the logout "link" (button in form) of the navbar */
+.navbar form>button.logout {
+    padding-top: 7px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+@media(max-width:767px) {
+    .navbar form>button.logout {
+        display: block;
+        text-align: left;
+        width: 100%;
+        padding: 10px 0;
+    }
+}
+
+.navbar form>button.logout:focus,
+.navbar form>button.logout:hover {
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.navbar form>button.logout:focus {
+    outline: none;
+}
+
+/* style breadcrumb widget as in previous bootstrap versions */
+.breadcrumb {
+    background-color: var(--bs-gray-200);
+    border-radius: .25rem;
+    padding: .75rem 1rem;
+}
+
+.breadcrumb-item>a {
+    text-decoration: none;
+}
+
+/* Custom styles for login and signup forms */
+.site-login,
+.site-signup {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.site-login h1,
+.site-signup h1 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+.site-login p,
+.site-signup p {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #666;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.btn-outline-secondary {
+    margin-top: 0.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+
+    .site-login,
+    .site-signup {
+        padding: 0 15px;
+    }
+
+    .col-lg-5 {
+        width: 100%;
+    }
+}
+
+/* Minimal Modern GTA 6 Vibe Roleplay Theme */
+:root {
+    --gta-accent: #ff6b9d;
+    --gta-accent-light: #ff8fb1;
+    --gta-accent-dark: #e55a8a;
+    --gta-secondary: #8b5cf6;
+    --gta-secondary-light: #a78bfa;
+    --gta-warm: #f59e0b;
+    --gta-warm-light: #fbbf24;
+    --gta-neutral: #6b7280;
+    --gta-light: #f8fafc;
+    --gta-dark: #1e293b;
+    --gta-border: #e2e8f0;
+    --gta-shadow: rgba(0, 0, 0, 0.05);
+    --gta-shadow-hover: rgba(0, 0, 0, 0.1);
+}
+
+/* Hero Section - Minimal Modern */
+.hero-section {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-bottom: 1px solid var(--gta-border);
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg,
+            rgba(255, 107, 157, 0.03) 0%,
+            rgba(139, 92, 246, 0.03) 50%,
+            rgba(245, 158, 11, 0.03) 100%);
+    z-index: 1;
+}
+
+.hero-section .container {
+    position: relative;
+    z-index: 2;
+}
+
+/* Card Enhancements - Minimal Modern */
+.card {
+    border: 1px solid var(--gta-border);
+    background: white;
+    box-shadow: 0 1px 3px var(--gta-shadow);
+    transition: all 0.2s ease;
+    border-radius: 12px;
+}
+
+.card:hover {
+    box-shadow: 0 4px 12px var(--gta-shadow-hover);
+    transform: translateY(-2px);
+}
+
+/* Button Enhancements - Minimal Modern */
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.btn-primary {
+    background: var(--gta-accent);
+    color: white;
+    box-shadow: 0 2px 4px rgba(255, 107, 157, 0.2);
+}
+
+.btn-primary:hover {
+    background: var(--gta-accent-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(255, 107, 157, 0.3);
+}
+
+.btn-outline-light {
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: transparent;
+    color: white;
+}
+
+.btn-outline-light:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Feature Icons - Subtle Accents */
+.feature-item i,
+.card-body i {
+    color: var(--gta-accent);
+    opacity: 0.8;
+}
+
+/* Navigation - Minimal Modern */
+.navbar {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--gta-border);
+    box-shadow: 0 1px 3px var(--gta-shadow);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--gta-dark);
+}
+
+.navbar-nav .nav-link {
+    color: var(--gta-neutral) !important;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.navbar-nav .nav-link:hover {
+    color: var(--gta-accent) !important;
+}
+
+.navbar-nav .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: var(--gta-accent);
+    transition: all 0.2s ease;
+    transform: translateX(-50%);
+}
+
+.navbar-nav .nav-link:hover::after {
+    width: 100%;
+}
+
+/* Page Header - Minimal Modern */
+.page-header {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--gta-accent) 0%, var(--gta-secondary) 100%) !important;
+}
+
+.page-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.1) 0%,
+            rgba(255, 255, 255, 0.05) 100%);
+    z-index: 1;
+}
+
+.page-header .container {
+    position: relative;
+    z-index: 2;
+}
+
+/* Accordion - Minimal Modern */
+.accordion-button:not(.collapsed) {
+    background: var(--gta-accent);
+    color: white;
+    border: none;
+}
+
+.accordion-button:focus {
+    box-shadow: 0 0 0 0.2rem rgba(255, 107, 157, 0.25);
+    border: none;
+}
+
+.accordion-button::after {
+    filter: brightness(0) invert(1);
+}
+
+.accordion-item {
+    border: 1px solid var(--gta-border);
+    margin-bottom: 8px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Form Enhancements - Minimal Modern */
+.form-control {
+    border-radius: 8px;
+    border: 1px solid var(--gta-border);
+    transition: all 0.2s ease;
+    background: white;
+}
+
+.form-control:focus {
+    border-color: var(--gta-accent);
+    box-shadow: 0 0 0 0.2rem rgba(255, 107, 157, 0.15);
+}
+
+/* Stats Section - Minimal Modern */
+.display-6 {
+    font-weight: 700;
+    color: var(--gta-accent);
+}
+
+/* Social Media Icons - Subtle */
+.fab {
+    transition: all 0.2s ease;
+    color: var(--gta-neutral);
+}
+
+.fab:hover {
+    color: var(--gta-accent);
+    transform: scale(1.1);
+}
+
+/* Footer - Minimal Modern */
+.footer {
+    background: var(--gta-dark) !important;
+    color: white;
+    border-top: 1px solid var(--gta-border);
+}
+
+/* Text Colors - Minimal Theme */
+.text-primary {
+    color: var(--gta-accent) !important;
+}
+
+.text-secondary {
+    color: var(--gta-secondary) !important;
+}
+
+.text-warning {
+    color: var(--gta-warm) !important;
+}
+
+.text-muted {
+    color: var(--gta-neutral) !important;
+}
+
+/* Background Colors - Minimal Theme */
+.bg-primary {
+    background: var(--gta-accent) !important;
+}
+
+.bg-secondary {
+    background: var(--gta-secondary) !important;
+}
+
+.bg-light {
+    background: var(--gta-light) !important;
+}
+
+.bg-warning {
+    background: var(--gta-warm) !important;
+}
+
+/* Section Backgrounds - Subtle */
+section:nth-child(even) {
+    background: rgba(248, 250, 252, 0.5);
+}
+
+section:nth-child(odd) {
+    background: white;
+}
+
+/* Card Header Styling - Minimal */
+.card-header {
+    background: var(--gta-accent) !important;
+    color: white;
+    border: none;
+    border-radius: 12px 12px 0 0 !important;
+}
+
+/* Alert Styling - Minimal */
+.alert-success {
+    background: rgba(255, 107, 157, 0.1);
+    border: 1px solid var(--gta-accent);
+    color: var(--gta-dark);
+}
+
+.alert-danger {
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid var(--gta-warm);
+    color: var(--gta-dark);
+}
+
+/* Breadcrumb Styling - Minimal */
+.breadcrumb {
+    background: rgba(248, 250, 252, 0.8);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--gta-border);
+}
+
+.breadcrumb-item a {
+    color: var(--gta-accent);
+    text-decoration: none;
+}
+
+.breadcrumb-item.active {
+    color: var(--gta-neutral);
+}
+
+/* Responsive Enhancements */
+@media (max-width: 768px) {
+    .hero-section {
+        min-height: 60vh;
+    }
+
+    .display-1 {
+        font-size: 3rem;
+    }
+
+    .display-3 {
+        font-size: 2.5rem;
+    }
+
+    .display-4 {
+        font-size: 2rem;
+    }
+
+    .display-5 {
+        font-size: 1.75rem;
+    }
+
+    .navbar-brand {
+        font-size: 1.3rem;
+    }
+}
+
+/* Animation Classes - Subtle */
+.fade-in {
+    animation: fadeIn 0.6s ease-out;
+}
+
+.slide-up {
+    animation: slideUp 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Subtle GTA Theme Elements */
+.gta-accent-border {
+    border-left: 3px solid var(--gta-accent);
+}
+
+.gta-subtle-bg {
+    background: linear-gradient(135deg,
+            rgba(255, 107, 157, 0.02) 0%,
+            rgba(139, 92, 246, 0.02) 100%);
+}
+
+/* Enhanced Typography */
+.display-1,
+.display-2,
+.display-3,
+.display-4,
+.display-5 {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.lead {
+    font-weight: 400;
+    line-height: 1.6;
+}
+
+/* Minimal Hover Effects */
+.card:hover .card-body {
+    background: rgba(248, 250, 252, 0.5);
+}
+
+.feature-item:hover {
+    transform: translateY(-2px);
+}
+
+/* Clean Spacing */
+.container {
+    max-width: 1200px;
+}
+
+.section-padding {
+    padding: 4rem 0;
+}
+
+@media (max-width: 768px) {
+    .section-padding {
+        padding: 2rem 0;
+    }
+}
