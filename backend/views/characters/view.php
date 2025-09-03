@@ -28,7 +28,6 @@ $this->title = Html::encode($model->name);
             'pitch',
             'yaw',
             'health',
-            'armor',
             'model_id',
             [
                 'attribute' => 'money_cash',

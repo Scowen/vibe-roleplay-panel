@@ -25,7 +25,6 @@ use yii\db\ActiveRecord;
  * @property int $money_bank
  * @property int|null $model_id
  * @property int $health
- * @property int $armor
  * @property int|null $last_login_at
  * @property string|null $metadata
  */
@@ -47,7 +46,7 @@ class Character extends ActiveRecord
     {
         return [
             [['user_id', 'name', 'date_of_birth'], 'required'],
-            [['user_id', 'created_at', 'updated_at', 'money_cash', 'money_bank', 'model_id', 'health', 'armor', 'last_login_at'], 'integer'],
+            [['user_id', 'created_at', 'updated_at', 'money_cash', 'money_bank', 'model_id', 'health', 'last_login_at'], 'integer'],
             [['location_x', 'location_y', 'location_z'], 'number'],
             [['pitch', 'yaw'], 'number'],
             [['date_of_birth'], 'date', 'format' => 'php:Y-m-d'],
@@ -76,7 +75,6 @@ class Character extends ActiveRecord
             'money_bank' => 'Bank',
             'model_id' => 'Model ID',
             'health' => 'Health',
-            'armor' => 'Armor',
             'last_login_at' => 'Last Login',
             'metadata' => 'Metadata',
         ];

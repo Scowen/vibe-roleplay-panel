@@ -28,7 +28,6 @@ class m20250903_110000_create_characters_table extends Migration
             'money_bank' => $this->bigInteger()->notNull()->defaultValue(0),
             'model_id' => $this->integer()->null(),
             'health' => $this->tinyInteger()->notNull()->defaultValue(100),
-            'armor' => $this->tinyInteger()->notNull()->defaultValue(0),
             'last_login_at' => $this->integer()->null(),
             'metadata' => $this->text()->null(), // JSON-encoded miscellaneous attributes
         ], $tableOptions);
