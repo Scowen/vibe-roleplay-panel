@@ -12,6 +12,7 @@ use yii\web\NotFoundHttpException;
 use yii\web\ForbiddenHttpException;
 use common\models\QuestionnaireQuestion;
 use common\models\Role;
+use common\models\Character;
 
 /**
  * Site controller for Vibe Roleplay Account Management
@@ -211,9 +212,10 @@ class SiteController extends Controller
     public function actionIndex()
     {
         $user = Yii::$app->user->identity;
+        $charactersCount = Character::find()->where(['user_id' => $user->id])->count();
         $stats = [
             'totalPlaytime' => '24h 32m',
-            'charactersCreated' => 3,
+            'charactersCreated' => (int)$charactersCount,
             'serverRank' => 'Member',
             'lastLogin' => date('M j, Y g:i A', strtotime($user->created_at)),
         ];
