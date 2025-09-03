@@ -10,6 +10,7 @@ use common\models\LoginForm;
 use common\models\User;
 use yii\web\NotFoundHttpException;
 use yii\web\ForbiddenHttpException;
+use common\models\QuestionnaireQuestion;
 
 /**
  * Site controller for Vibe Roleplay Account Management
@@ -31,7 +32,7 @@ class SiteController extends Controller
                         'roles' => ['?'],
                     ],
                     [
-                        'actions' => ['logout', 'index', 'profile', 'change-password', 'update-profile', 'settings'],
+                        'actions' => ['logout', 'index', 'profile', 'change-password', 'update-profile', 'settings', 'questionnaire'],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
@@ -46,6 +47,66 @@ class SiteController extends Controller
                 ],
             ],
         ];
+    }
+
+    public function beforeAction($action)
+    {
+        if (!parent::beforeAction($action)) {
+            return false;
+        }
+
+        if (!Yii::$app->user->isGuest) {
+            $user = Yii::$app->user->identity;
+            $currentAction = $action->id;
+            $isQuestionnairePassed = !empty($user->questionnaire_passed_at);
+            $isAllowedAction = in_array($currentAction, ['questionnaire', 'logout']);
+            $hasActiveQuestions = (int) QuestionnaireQuestion::find()->where(['is_active' => 1])->count() > 0;
+
+            if ($hasActiveQuestions && !$isQuestionnairePassed && !$isAllowedAction) {
+                Yii::$app->response->redirect(['questionnaire']);
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public function actionQuestionnaire()
+    {
+        $user = Yii::$app->user->identity;
+        $questions = QuestionnaireQuestion::findActiveOrdered();
+
+        if (Yii::$app->request->isPost) {
+            $postAnswers = Yii::$app->request->post('answers', []);
+            $allCorrect = true;
+
+            foreach ($questions as $question) {
+                $selectedAnswerId = isset($postAnswers[$question->id]) ? (int)$postAnswers[$question->id] : null;
+                $correctAnswer = null;
+                foreach ($question->answers as $answer) {
+                    if ((int)$answer->is_correct === 1) {
+                        $correctAnswer = $answer;
+                        break;
+                    }
+                }
+                if (!$selectedAnswerId || !$correctAnswer || $selectedAnswerId !== (int)$correctAnswer->id) {
+                    $allCorrect = false;
+                }
+            }
+
+            if ($allCorrect && !empty($questions)) {
+                $user->questionnaire_passed_at = time();
+                $user->save(false, ['questionnaire_passed_at', 'updated_at']);
+                Yii::$app->session->setFlash('success', 'Thanks! You have passed the rules questionnaire.');
+                return $this->redirect(['index']);
+            }
+
+            Yii::$app->session->setFlash('error', 'You must answer all questions correctly to proceed.');
+        }
+
+        return $this->render('questionnaire', [
+            'questions' => $questions,
+        ]);
     }
 
     /**
