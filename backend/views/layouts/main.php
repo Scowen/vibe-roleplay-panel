@@ -358,6 +358,11 @@ AppAsset::register($this);
                         'url' => ['/settings'],
                         'active' => Yii::$app->controller->action->id === 'settings',
                     ],
+                    [
+                        'label' => '<i class="fas fa-users"></i> Characters',
+                        'url' => ['/characters/index'],
+                        'active' => Yii::$app->controller->id === 'characters',
+                    ],
                 ];
 
                 echo Nav::widget([
