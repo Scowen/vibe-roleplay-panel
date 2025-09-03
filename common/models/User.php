@@ -7,6 +7,7 @@ use yii\base\NotSupportedException;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
+use yii\helpers\ArrayHelper;
 
 /**
  * User model
@@ -22,6 +23,7 @@ use yii\web\IdentityInterface;
  * @property integer $created_at
  * @property integer $updated_at
  * @property string $password write-only password
+ * @property integer $questionnaire_passed_at
  */
 class User extends ActiveRecord implements IdentityInterface
 {
@@ -56,6 +58,7 @@ class User extends ActiveRecord implements IdentityInterface
         return [
             ['status', 'default', 'value' => self::STATUS_INACTIVE],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_INACTIVE, self::STATUS_DELETED]],
+            [['questionnaire_passed_at'], 'integer'],
         ];
     }
 
@@ -110,7 +113,8 @@ class User extends ActiveRecord implements IdentityInterface
      * @param string $token verify email token
      * @return static|null
      */
-    public static function findByVerificationToken($token) {
+    public static function findByVerificationToken($token)
+    {
         return static::findOne([
             'verification_token' => $token,
             'status' => self::STATUS_INACTIVE
@@ -209,5 +213,146 @@ class User extends ActiveRecord implements IdentityInterface
     public function removePasswordResetToken()
     {
         $this->password_reset_token = null;
+    }
+
+    /**
+     * Gets query for [[UserRoles]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUserRoles()
+    {
+        return $this->hasMany(UserRole::class, ['user_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[Roles]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRoles()
+    {
+        return $this->hasMany(Role::class, ['id' => 'role_id'])
+            ->viaTable('{{%user_role}}', ['user_id' => 'id']);
+    }
+
+    /**
+     * Check if user has a specific permission
+     *
+     * @param string $permissionName
+     * @return bool
+     */
+    public function can($permissionName)
+    {
+        return Yii::$app->permissionChecker->can($permissionName, $this);
+    }
+
+    /**
+     * Check if user has any of the specified permissions
+     *
+     * @param array $permissions
+     * @return bool
+     */
+    public function canAny($permissions)
+    {
+        return Yii::$app->permissionChecker->canAny($permissions, $this);
+    }
+
+    /**
+     * Check if user has all of the specified permissions
+     *
+     * @param array $permissions
+     * @return bool
+     */
+    public function canAll($permissions)
+    {
+        return Yii::$app->permissionChecker->canAll($permissions, $this);
+    }
+
+    /**
+     * Check if user has a specific role
+     *
+     * @param string $roleName
+     * @return bool
+     */
+    public function hasRole($roleName)
+    {
+        return Yii::$app->permissionChecker->hasRole($roleName, $this);
+    }
+
+    /**
+     * Get user's primary role (first assigned role)
+     *
+     * @return Role|null
+     */
+    public function getPrimaryRole()
+    {
+        $roles = $this->roles;
+        return !empty($roles) ? $roles[0] : null;
+    }
+
+    /**
+     * Assign a role to user
+     *
+     * @param int $roleId
+     * @return bool
+     */
+    public function assignRole($roleId)
+    {
+        // Check if role already assigned
+        if ($this->hasRole(Role::findOne($roleId)->name)) {
+            return true;
+        }
+
+        $userRole = new UserRole();
+        $userRole->user_id = $this->id;
+        $userRole->role_id = $roleId;
+        $userRole->created_at = time();
+
+        if ($userRole->save()) {
+            Yii::$app->permissionChecker->clearCache($this);
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Remove a role from user
+     *
+     * @param int $roleId
+     * @return bool
+     */
+    public function removeRole($roleId)
+    {
+        $deleted = UserRole::deleteAll(['user_id' => $this->id, 'role_id' => $roleId]);
+
+        if ($deleted) {
+            Yii::$app->permissionChecker->clearCache($this);
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if user has completed questionnaire
+     *
+     * @return bool
+     */
+    public function hasCompletedQuestionnaire()
+    {
+        return !empty($this->questionnaire_passed_at);
+    }
+
+    /**
+     * Mark questionnaire as completed
+     *
+     * @return bool
+     */
+    public function markQuestionnaireCompleted()
+    {
+        $this->questionnaire_passed_at = time();
+        return $this->save(false, ['questionnaire_passed_at', 'updated_at']);
     }
 }

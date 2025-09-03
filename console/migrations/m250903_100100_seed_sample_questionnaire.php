@@ -2,7 +2,7 @@
 
 use yii\db\Migration;
 
-class m20250903_100100_seed_sample_questionnaire extends Migration
+class m250903_100100_seed_sample_questionnaire extends Migration
 {
     public function up()
     {

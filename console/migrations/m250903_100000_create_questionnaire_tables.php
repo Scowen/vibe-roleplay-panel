@@ -2,7 +2,7 @@
 
 use yii\db\Migration;
 
-class m20250903_100000_create_questionnaire_tables extends Migration
+class m250903_100000_create_questionnaire_tables extends Migration
 {
     public function up()
     {

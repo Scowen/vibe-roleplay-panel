@@ -11,6 +11,7 @@ use common\models\User;
 use yii\web\NotFoundHttpException;
 use yii\web\ForbiddenHttpException;
 use common\models\QuestionnaireQuestion;
+use common\models\Role;
 
 /**
  * Site controller for Vibe Roleplay Account Management
@@ -29,12 +30,44 @@ class SiteController extends Controller
                     [
                         'actions' => ['login', 'error'],
                         'allow' => true,
-                        'roles' => ['?'],
+                        'roles' => ['?', '@'],
                     ],
                     [
-                        'actions' => ['logout', 'index', 'profile', 'change-password', 'update-profile', 'settings', 'questionnaire'],
+                        'actions' => ['logout', 'questionnaire'],
                         'allow' => true,
                         'roles' => ['@'],
+                    ],
+                    [
+                        'actions' => ['index'],
+                        'allow' => true,
+                        'roles' => ['@'],
+                        'matchCallback' => function ($rule, $action) {
+                            return Yii::$app->permissionChecker->canAccessPanel();
+                        },
+                    ],
+                    [
+                        'actions' => ['profile', 'change-password', 'update-profile'],
+                        'allow' => true,
+                        'roles' => ['@'],
+                        'matchCallback' => function ($rule, $action) {
+                            return Yii::$app->permissionChecker->can('view_profile');
+                        },
+                    ],
+                    [
+                        'actions' => ['settings'],
+                        'allow' => true,
+                        'roles' => ['@'],
+                        'matchCallback' => function ($rule, $action) {
+                            return Yii::$app->permissionChecker->can('view_settings');
+                        },
+                    ],
+                    [
+                        'actions' => ['admin-dashboard'],
+                        'allow' => true,
+                        'roles' => ['@'],
+                        'matchCallback' => function ($rule, $action) {
+                            return Yii::$app->permissionChecker->can('view_system_logs');
+                        },
                     ],
                 ],
             ],
@@ -55,16 +88,26 @@ class SiteController extends Controller
             return false;
         }
 
-        if (!Yii::$app->user->isGuest) {
-            $user = Yii::$app->user->identity;
-            $currentAction = $action->id;
-            $isQuestionnairePassed = !empty($user->questionnaire_passed_at);
-            $isAllowedAction = in_array($currentAction, ['questionnaire', 'logout']);
-            $hasActiveQuestions = (int) QuestionnaireQuestion::find()->where(['is_active' => 1])->count() > 0;
+        // Skip questionnaire check for error action to prevent infinite loops
+        if ($action->id === 'error') {
+            return true;
+        }
 
-            if ($hasActiveQuestions && !$isQuestionnairePassed && !$isAllowedAction) {
-                Yii::$app->response->redirect(['questionnaire']);
-                return false;
+        if (!Yii::$app->user->isGuest) {
+            try {
+                $user = Yii::$app->user->identity;
+                $currentAction = $action->id;
+                $isQuestionnairePassed = !empty($user->questionnaire_passed_at);
+                $isAllowedAction = in_array($currentAction, ['questionnaire', 'logout']);
+                $hasActiveQuestions = (int) QuestionnaireQuestion::find()->where(['is_active' => 1])->count() > 0;
+
+                if ($hasActiveQuestions && !$isQuestionnairePassed && !$isAllowedAction) {
+                    Yii::$app->response->redirect(['questionnaire']);
+                    return false;
+                }
+            } catch (\Exception $e) {
+                // Log the error but don't block the action
+                Yii::error('Error in beforeAction: ' . $e->getMessage());
             }
         }
 
@@ -73,32 +116,71 @@ class SiteController extends Controller
 
     public function actionQuestionnaire()
     {
+        /** @var User $user */
         $user = Yii::$app->user->identity;
         $questions = QuestionnaireQuestion::findActiveOrdered();
 
         if (Yii::$app->request->isPost) {
             $postAnswers = Yii::$app->request->post('answers', []);
             $allCorrect = true;
+            $results = [];
 
             foreach ($questions as $question) {
                 $selectedAnswerId = isset($postAnswers[$question->id]) ? (int)$postAnswers[$question->id] : null;
                 $correctAnswer = null;
+                $userAnswer = null;
+
                 foreach ($question->answers as $answer) {
                     if ((int)$answer->is_correct === 1) {
                         $correctAnswer = $answer;
-                        break;
+                    }
+                    if ($answer->id == $selectedAnswerId) {
+                        $userAnswer = $answer;
                     }
                 }
-                if (!$selectedAnswerId || !$correctAnswer || $selectedAnswerId !== (int)$correctAnswer->id) {
+
+                $isCorrect = $selectedAnswerId && $correctAnswer && $selectedAnswerId === (int)$correctAnswer->id;
+                if (!$isCorrect) {
                     $allCorrect = false;
                 }
+
+                $results[] = [
+                    'question' => $question->question_text,
+                    'userAnswer' => $userAnswer ? $userAnswer->answer_text : 'No answer',
+                    'correctAnswer' => $correctAnswer ? $correctAnswer->answer_text : 'Unknown',
+                    'isCorrect' => $isCorrect,
+                ];
             }
 
             if ($allCorrect && !empty($questions)) {
-                $user->questionnaire_passed_at = time();
-                $user->save(false, ['questionnaire_passed_at', 'updated_at']);
+                $user->markQuestionnaireCompleted();
+
+                // Assign default Member role if user doesn't have any roles
+                if (empty($user->roles)) {
+                    $memberRole = Role::findOne(['name' => 'Member']);
+                    if ($memberRole) {
+                        $user->assignRole($memberRole->id);
+                    }
+                }
+
+                if (Yii::$app->request->isAjax) {
+                    return $this->asJson([
+                        'success' => true,
+                        'message' => 'Thanks! You have passed the rules questionnaire.',
+                        'results' => $results
+                    ]);
+                }
+
                 Yii::$app->session->setFlash('success', 'Thanks! You have passed the rules questionnaire.');
                 return $this->redirect(['index']);
+            }
+
+            if (Yii::$app->request->isAjax) {
+                return $this->asJson([
+                    'success' => false,
+                    'message' => 'You must answer all questions correctly to proceed.',
+                    'results' => $results
+                ]);
             }
 
             Yii::$app->session->setFlash('error', 'You must answer all questions correctly to proceed.');
@@ -273,5 +355,19 @@ class SiteController extends Controller
         }
 
         return $this->redirect(['profile']);
+    }
+
+    /**
+     * Displays admin dashboard.
+     *
+     * @return mixed
+     */
+    public function actionAdminDashboard()
+    {
+        if (!Yii::$app->permissionChecker->can('view_system_logs')) {
+            throw new ForbiddenHttpException('You do not have permission to access the admin dashboard.');
+        }
+
+        return $this->render('admin-dashboard');
     }
 }

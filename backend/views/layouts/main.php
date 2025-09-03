@@ -104,6 +104,75 @@ AppAsset::register($this);
             background-color: rgba(255, 255, 255, 0.1);
         }
 
+        /* Admin dropdown styling */
+        .sidebar-nav .dropdown-menu {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .sidebar-nav .dropdown-item {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 0.75rem 2.5rem;
+            border: none;
+            background: transparent;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-nav .dropdown-item:hover {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-nav .dropdown-item.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Nested navigation items */
+        .sidebar-nav .nav-item.dropdown .nav-link {
+            position: relative;
+        }
+
+        .sidebar-nav .nav-item.dropdown .nav-link::after {
+            content: '\f107';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform 0.2s ease;
+        }
+
+        .sidebar-nav .nav-item.dropdown.show .nav-link::after {
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        /* Show dropdown menu when dropdown is open */
+        .sidebar-nav .nav-item.dropdown.show .dropdown-menu {
+            display: block !important;
+        }
+
+        /* Hide dropdown menu by default */
+        .sidebar-nav .dropdown-menu {
+            display: none;
+        }
+
+        /* Smooth transition for dropdown */
+        .sidebar-nav .dropdown-menu {
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        .sidebar-nav .nav-item.dropdown.show .dropdown-menu {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         .sidebar-footer {
             padding: 1.5rem;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -360,6 +429,41 @@ AppAsset::register($this);
                     ],
                 ];
 
+                // Add admin section if user has admin permissions
+                if (Yii::$app->permissionChecker->can('view_system_logs')) {
+                    $menuItems[] = [
+                        'label' => '<i class="fas fa-shield-alt"></i> Admin',
+                        'url' => '#',
+                        'items' => [
+                            [
+                                'label' => '<i class="fas fa-tachometer-alt"></i> Admin Dashboard',
+                                'url' => ['/admin-dashboard'],
+                                'active' => Yii::$app->controller->action->id === 'admin-dashboard',
+                            ],
+                            [
+                                'label' => '<i class="fas fa-users"></i> User Management',
+                                'url' => ['/users'],
+                                'active' => Yii::$app->controller->id === 'user',
+                            ],
+                            [
+                                'label' => '<i class="fas fa-user-tag"></i> Role Management',
+                                'url' => ['/roles'],
+                                'active' => Yii::$app->controller->id === 'role',
+                            ],
+                            [
+                                'label' => '<i class="fas fa-question-circle"></i> Questionnaire',
+                                'url' => ['/questionnaire-management'],
+                                'active' => Yii::$app->controller->id === 'questionnaire',
+                            ],
+                            [
+                                'label' => '<i class="fas fa-chart-line"></i> System Statistics',
+                                'url' => ['/admin-dashboard'],
+                                'active' => Yii::$app->controller->action->id === 'admin-dashboard',
+                            ],
+                        ],
+                    ];
+                }
+
                 echo Nav::widget([
                     'options' => ['class' => 'nav flex-column'],
                     'items' => $menuItems,
@@ -375,7 +479,14 @@ AppAsset::register($this);
                     </div>
                     <div class="user-details">
                         <div class="username"><?= Html::encode(Yii::$app->user->identity->username) ?></div>
-                        <div class="user-role">Administrator</div>
+                        <div class="user-role">
+                            <?php
+                            $user = Yii::$app->user->identity;
+                            $roles = $user->roles;
+                            $roleName = !empty($roles) ? $roles[0]->name : 'Member';
+                            echo Html::encode($roleName);
+                            ?>
+                        </div>
                     </div>
                 </div>
                 <?= Html::beginForm(['/logout'], 'post', ['class' => 'logout-form']) ?>
@@ -437,6 +548,27 @@ AppAsset::register($this);
                     sidebar.classList.toggle('show');
                 });
             }
+
+            // Admin dropdown functionality
+            const adminDropdowns = document.querySelectorAll('.sidebar-nav .dropdown');
+            adminDropdowns.forEach(dropdown => {
+                const dropdownToggle = dropdown.querySelector('.nav-link');
+                const dropdownMenu = dropdown.querySelector('.dropdown-menu');
+
+                if (dropdownToggle && dropdownMenu) {
+                    dropdownToggle.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        dropdown.classList.toggle('show');
+
+                        // Close other dropdowns
+                        adminDropdowns.forEach(otherDropdown => {
+                            if (otherDropdown !== dropdown) {
+                                otherDropdown.classList.remove('show');
+                            }
+                        });
+                    });
+                }
+            });
 
             // Close sidebar when clicking outside on mobile
             document.addEventListener('click', function(event) {
